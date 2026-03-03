@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tabel_data_kos', function (Blueprint $table) {
+        Schema::create('data_kos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('kos_id')->unique();
             $table->unsignedBigInteger('pemilik_id');
+            $table->string('nama_pemilik');
+            $table->string('no_wa_pemilik')->nullable();
             $table->string('nama_kos');
             $table->text('alamat');
             $table->timestamps();
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tabel_data_kos');
+        Schema::dropIfExists('data_kos');
     }
 };

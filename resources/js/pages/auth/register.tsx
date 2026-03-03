@@ -24,9 +24,9 @@ export default function Register() {
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
+                        <div className="grid gap-5">
                             <div className="grid gap-2">
-                                <Label htmlFor="username">Username</Label>
+                                <Label htmlFor="username" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Username</Label>
                                 <Input
                                     id="username"
                                     type="text"
@@ -35,16 +35,17 @@ export default function Register() {
                                     tabIndex={1}
                                     autoComplete="username"
                                     name="username"
-                                    placeholder="Username"
+                                    placeholder="johndoe"
+                                    className="h-11 rounded-xl border-slate-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900/50"
                                 />
                                 <InputError
                                     message={errors.username}
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email address</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -52,13 +53,14 @@ export default function Register() {
                                     tabIndex={2}
                                     autoComplete="email"
                                     name="email"
-                                    placeholder="email@example.com"
+                                    placeholder="john@example.com"
+                                    className="h-11 rounded-xl border-slate-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900/50"
                                 />
                                 <InputError message={errors.email} />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</Label>
                                 <Input
                                     id="password"
                                     type="password"
@@ -66,13 +68,14 @@ export default function Register() {
                                     tabIndex={3}
                                     autoComplete="new-password"
                                     name="password"
-                                    placeholder="Password"
+                                    placeholder="••••••••"
+                                    className="h-11 rounded-xl border-slate-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900/50"
                                 />
                                 <InputError message={errors.password} />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
+                                <Label htmlFor="password_confirmation" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                     Confirm password
                                 </Label>
                                 <Input
@@ -82,7 +85,8 @@ export default function Register() {
                                     tabIndex={4}
                                     autoComplete="new-password"
                                     name="password_confirmation"
-                                    placeholder="Confirm password"
+                                    placeholder="••••••••"
+                                    className="h-11 rounded-xl border-slate-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900/50"
                                 />
                                 <InputError
                                     message={errors.password_confirmation}
@@ -91,18 +95,19 @@ export default function Register() {
 
                             <Button
                                 type="submit"
-                                className="mt-2 w-full"
+                                className="h-11 w-full rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 hover:shadow-blue-500/35 active:scale-[0.98] disabled:opacity-70 mt-2"
                                 tabIndex={5}
                                 data-test="register-user-button"
+                                disabled={processing}
                             >
-                                {processing && <Spinner />}
-                                Create account
+                                {processing ? <Spinner className="mr-2 h-4 w-4" /> : null}
+                                Create Account
                             </Button>
                         </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
+                        <div className="text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={6} className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
                                 Log in
                             </TextLink>
                         </div>

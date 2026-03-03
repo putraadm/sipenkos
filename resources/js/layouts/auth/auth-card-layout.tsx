@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { home } from '@/routes';
+import { login } from '@/routes';
 
 export default function AuthCardLayout({
     children,
@@ -20,10 +20,15 @@ export default function AuthCardLayout({
     description?: string;
 }>) {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+        <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-slate-50 p-6 md:p-10 dark:bg-slate-950">
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-blue-500/20 blur-[120px] dark:bg-blue-500/15" />
+                <div className="absolute top-[60%] -right-[10%] h-[40%] w-[40%] rounded-full bg-indigo-500/20 blur-[120px] dark:bg-indigo-500/15" />
+                <div className="absolute inset-0 bg-grid-slate dark:bg-grid-white" />
+            </div>
             <div className="flex w-full max-w-md flex-col gap-6">
                 <Link
-                    href={home()}
+                    href={login().url}
                     className="flex items-center gap-2 self-center font-medium"
                 >
                     <div className="flex h-9 w-9 items-center justify-center">
