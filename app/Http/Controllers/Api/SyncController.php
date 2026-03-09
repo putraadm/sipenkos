@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DataKos;
 use App\Models\DataPenghuni;
+use App\Models\RekapPendapatan;
 use App\Models\RiwayatMutasi;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -58,8 +59,8 @@ class SyncController extends Controller
             'nama'           => 'required|string',
             'no_wa'          => 'nullable|string',
             'agama'          => 'nullable|string',
-            'file_ktp'       => 'nullable|url',
-            'file_kk'        => 'nullable|url',
+            'file_ktp'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'file_kk'        => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'id_kos'         => 'required|integer',
             'jenis_mutasi'   => 'required|in:masuk,keluar',
             'tanggal_mutasi' => 'required|date',
@@ -69,8 +70,17 @@ class SyncController extends Controller
         try {
             $existingPenghuni = DataPenghuni::where('penghuni_id', $validated['id_penghuni'])->first();
 
-            $pathKtp = $this->handleImageDownload($validated['file_ktp'] ?? null, 'ktp', optional($existingPenghuni)->file_ktp);
-            $pathKk = $this->handleImageDownload($validated['file_kk'] ?? null, 'kk', optional($existingPenghuni)->file_kk);
+            $pathKtp = $this->handleImageUpload(
+                $request->file('file_ktp'),
+                'ktp',
+                optional($existingPenghuni)->file_ktp
+            );
+
+            $pathKk = $this->handleImageUpload(
+                $request->file('file_kk'),
+                'kk',
+                optional($existingPenghuni)->file_kk
+            );
 
             DataPenghuni::updateOrCreate(
                 ['penghuni_id' => $validated['id_penghuni']],
@@ -103,39 +113,67 @@ class SyncController extends Controller
         }
     }
 
-    private function handleImageDownload(?string $url, string $tipeDokumen, ?string $pathLama)
+    private function handleImageUpload($file, string $tipeDokumen, ?string $pathLama)
     {
-        if (!$url) {
+        if (!$file) {
             return $pathLama;
         }
 
         try {
-            $response = Http::get($url);
-            
-            if ($response->successful()) {
-                if ($pathLama && Storage::disk('public')->exists($pathLama)) {
-                    Storage::disk('public')->delete($pathLama);
-                }
-
-                $manager = new ImageManager(new Driver());
-                $image = $manager->read($response->body());
-
-                $image->scaleDown(width: 800);
-
-                $encodedImage = $image->toJpeg(quality: 75);
-
-                $namaFileBaru = $tipeDokumen . '_' . Str::random(10) . '.jpg';
-                $pathSimpan = 'dokumen_penghuni/' . $namaFileBaru;
-
-                Storage::disk('public')->put($pathSimpan, (string) $encodedImage);
-
-                return $pathSimpan;
+            if ($pathLama && Storage::disk('public')->exists($pathLama)) {
+                Storage::disk('public')->delete($pathLama);
             }
 
-            return $pathLama;
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file->getPathname());
 
+            $image->scaleDown(width: 800);
+
+            $encodedImage = $image->toJpeg(quality: 75);
+
+            $namaFileBaru = $tipeDokumen . '_' . Str::random(10) . '.jpg';
+            $pathSimpan = 'dokumen_penghuni/' . $namaFileBaru;
+
+            Storage::disk('public')->put($pathSimpan, (string) $encodedImage);
+
+            return $pathSimpan;
         } catch (\Exception $e) {
             return $pathLama;
+        }
+    }
+
+    public function syncPendapatan(Request $request)
+    {
+        $validated = $request->validate([
+            'id_kos'             => 'required|integer',
+            'id_pemilik'         => 'required|integer',
+            'nama_kos'           => 'required|string',
+            'nama_penghuni'      => 'nullable|string',
+            'nomor_kamar'        => 'nullable|string',
+            'tipe_kamar'         => 'nullable|string',
+            'periode_tagihan'    => 'nullable|date',
+            'metode_pembayaran'  => 'nullable|string',
+            'nominal'            => 'required|numeric',
+            'tanggal_pembayaran' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        try {
+            RekapPendapatan::create([
+                'kos_id'             => $validated['id_kos'],
+                'pemilik_id'         => $validated['id_pemilik'],
+                'nama_kos'           => $validated['nama_kos'],
+                'nama_penghuni'      => $validated['nama_penghuni'],
+                'nomor_kamar'        => $validated['nomor_kamar'],
+                'tipe_kamar'         => $validated['tipe_kamar'],
+                'periode_tagihan'    => $validated['periode_tagihan'],
+                'metode_pembayaran'  => $validated['metode_pembayaran'],
+                'nominal'            => $validated['nominal'],
+                'tanggal_pembayaran' => $validated['tanggal_pembayaran'],
+            ]);
+
+            return $this->successResponse(null, 'Data Pendapatan berhasil dicatat.');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Gagal mencatat pendapatan: ' . $e->getMessage(), 500);
         }
     }
 }

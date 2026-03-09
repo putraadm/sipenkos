@@ -3,9 +3,9 @@ import { Head, router } from '@inertiajs/react';
 import laporan from '@/routes/laporan';
 import AppLayout from '@/layouts/app-layout';
 import { DataTableServer } from '@/components/ui/data-table-server';
-import { ColumnDef, Row } from '@tanstack/react-table';
+import { ColumnDef, Row, SortingState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { FileText, FileDown, FileSpreadsheet, Search } from 'lucide-react';
+import { FileText, FileDown, FileSpreadsheet, Search, Users, LogIn, LogOut } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,6 +54,15 @@ interface LaporanProps {
         month?: string;
         year?: string;
         jenis_mutasi?: string;
+        sort_by?: string;
+        sort_direction?: string;
+    };
+    stats: {
+        total_penghuni_aktif: number;
+        masuk_bulan_ini: number;
+        keluar_bulan_ini: number;
+        current_month: string;
+        current_year: number;
     };
 }
 
@@ -73,12 +82,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
+export default function LaporanMutasi({ mutasi, filters, stats }: LaporanProps) {
     const [search, setSearch] = useState<string>(filters.search || '');
     const [month, setMonth] = useState<string>(filters.month || '');
     const [year, setYear] = useState<string>(filters.year || '');
     const [jenisMutasi, setJenisMutasi] = useState<string>(filters.jenis_mutasi || '');
     const [isLoading, setIsLoading] = useState(false);
+    const [sorting, setSorting] = useState<SortingState>(
+        filters.sort_by ? [{ id: filters.sort_by, desc: filters.sort_direction === 'desc' }] : [{ id: 'tanggal_mutasi', desc: false }]
+    );
 
     useEffect(() => {
         const unbindStart = router.on('start', () => setIsLoading(true));
@@ -98,6 +110,7 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         {
             accessorKey: 'penghuni.nama',
             header: 'Penghuni',
+            enableSorting: true,
             cell: ({ row }: { row: Row<MutasiItem> }) => (
                 <div className="flex flex-col">
                     <span className="text-sm font-bold text-slate-900 dark:text-slate-400">{row.original.penghuni?.nama}</span>
@@ -108,6 +121,7 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         {
             accessorKey: 'kos.nama_kos',
             header: 'Nama Kos',
+            enableSorting: true,
             cell: ({ row }: { row: Row<MutasiItem> }) => (
                 <div className="flex flex-col">
                     <span className="text-sm font-medium text-slate-800 dark:text-slate-400">{row.original.kos?.nama_kos}</span>
@@ -118,6 +132,7 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         {
             accessorKey: 'jenis_mutasi',
             header: 'Jenis Mutasi',
+            enableSorting: true,
             cell: ({ row }: { row: Row<MutasiItem> }) => (
                 <Badge variant={row.original.jenis_mutasi === 'masuk' ? 'default' : 'destructive'} className="capitalize">
                     {row.original.jenis_mutasi}
@@ -160,7 +175,10 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         setMonth(filters.month || '');
         setYear(filters.year || '');
         setJenisMutasi(filters.jenis_mutasi || '');
-    }, [filters.search, filters.month, filters.year, filters.jenis_mutasi]);
+        setSorting(
+            filters.sort_by ? [{ id: filters.sort_by, desc: filters.sort_direction === 'desc' }] : [{ id: 'tanggal_mutasi', desc: false }]
+        );
+    }, [filters.search, filters.month, filters.year, filters.jenis_mutasi, filters.sort_by, filters.sort_direction]);
 
     const onSearch = (value: string) => {
         setSearch(value);
@@ -169,6 +187,10 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         if (month) params.month = month;
         if (year) params.year = year;
         if (jenisMutasi) params.jenis_mutasi = jenisMutasi;
+        if (sorting.length > 0) {
+            params.sort_by = sorting[0].id;
+            params.sort_direction = sorting[0].desc ? 'desc' : 'asc';
+        }
 
         const url = laporan?.index?.url
             ? laporan.index.url({ query: params })
@@ -195,6 +217,10 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         if (newMonth) params.month = newMonth;
         if (newYear) params.year = newYear;
         if (newJenis) params.jenis_mutasi = newJenis;
+        if (sorting.length > 0) {
+            params.sort_by = sorting[0].id;
+            params.sort_direction = sorting[0].desc ? 'desc' : 'asc';
+        }
 
         const url = laporan?.index?.url
             ? laporan.index.url({ query: params })
@@ -218,6 +244,10 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         if (month) params.month = month;
         if (year) params.year = year;
         if (jenisMutasi) params.jenis_mutasi = jenisMutasi;
+        if (sorting.length > 0) {
+            params.sort_by = sorting[0].id;
+            params.sort_direction = sorting[0].desc ? 'desc' : 'asc';
+        }
 
         const url = laporan?.index?.url
             ? laporan.index.url({ query: params })
@@ -229,6 +259,46 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
         });
     };
 
+    const onSortingChange = (updaterOrValue: any) => {
+        const nextState = typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue;
+        setSorting(nextState);
+
+        const params: any = {
+            search,
+            month,
+            year,
+            jenis_mutasi: jenisMutasi,
+            page: 1, // Reset to first page on sort change
+            per_page: mutasi.per_page,
+            sort_by: nextState[0]?.id || 'tanggal_mutasi',
+            sort_direction: nextState[0]?.desc ? 'desc' : 'asc'
+        };
+
+        const url = laporan?.index?.url
+            ? laporan.index.url({ query: params })
+            : `/laporan-mutasi?${new URLSearchParams(params).toString()}`;
+
+        router.get(url, {}, {
+            preserveState: true,
+            replace: true,
+            preserveScroll: true
+        });
+    };
+
+    const onExport = (format: 'pdf' | 'excel') => {
+        const params: any = { search };
+        if (month) params.month = month;
+        if (year) params.year = year;
+        if (jenisMutasi) params.jenis_mutasi = jenisMutasi;
+        if (sorting.length > 0) {
+            params.sort_by = sorting[0].id;
+            params.sort_direction = sorting[0].desc ? 'desc' : 'asc';
+        }
+
+        const queryString = new URLSearchParams(params).toString();
+        window.open(`/laporan-mutasi/${format}?${queryString}`, '_blank');
+    };
+
     return (
         <>
             <Head title="Laporan Mutasi" />
@@ -237,6 +307,37 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
                 <div className="flex flex-col gap-2">
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Laporan Mutasi Penghuni</h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Kelola dan tinjau riwayat perpindahan penghuni kos di wilayah Anda.</p>
+                </div>
+
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/50 dark:bg-blue-900/20">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-200 dark:shadow-none">
+                            <Users size={24} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Penghuni Aktif</span>
+                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total_penghuni_aktif.toLocaleString('id')}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 dark:border-emerald-900/50 dark:bg-emerald-900/20">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-200 dark:shadow-none">
+                            <LogIn size={24} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Masuk ({stats.current_month})</span>
+                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.masuk_bulan_ini.toLocaleString('id')}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-2xl border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900/50 dark:bg-rose-900/20">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500 text-white shadow-lg shadow-rose-200 dark:shadow-none">
+                            <LogOut size={24} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Keluar ({stats.current_month})</span>
+                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.keluar_bulan_ini.toLocaleString('id')}</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -298,11 +399,21 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <Button variant="outline" size="sm" className="h-9 gap-2 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-9 gap-2 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                                    onClick={() => onExport('pdf')}
+                                >
                                     <FileDown size={16} />
                                     PDF
                                 </Button>
-                                <Button variant="outline" size="sm" className="h-9 gap-2 border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-9 gap-2 border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                                    onClick={() => onExport('excel')}
+                                >
                                     <FileSpreadsheet size={16} />
                                     Excel
                                 </Button>
@@ -316,6 +427,8 @@ export default function LaporanMutasi({ mutasi, filters }: LaporanProps) {
                         rowCount={mutasi.total}
                         pagination={{ pageIndex: mutasi.current_page - 1, pageSize: mutasi.per_page }}
                         setPagination={onPaginationChange}
+                        sorting={sorting}
+                        onSortingChange={onSortingChange}
                         isLoading={isLoading}
                     />
                 </div>

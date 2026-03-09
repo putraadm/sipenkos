@@ -1,9 +1,17 @@
 'use client';
 
-import { ColumnDef, flexRender, getCoreRowModel, OnChangeFn, PaginationState, useReactTable } from '@tanstack/react-table';
+import {
+    ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    OnChangeFn,
+    PaginationState,
+    SortingState,
+    useReactTable,
+} from '@tanstack/react-table';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, X, Search } from 'lucide-react';
+import { Loader2, X, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Input } from './input';
 import {
@@ -30,22 +38,29 @@ export function DataTableServer<TData, TValue>({
     setPagination,
     rowCount,
     isLoading = false,
+    sorting,
+    onSortingChange,
 }: DataTableProps<TData, TValue> & {
     headerAction?: React.ReactNode;
     pagination: PaginationState;
     setPagination: OnChangeFn<PaginationState>;
     rowCount: number;
     isLoading?: boolean;
+    sorting?: SortingState;
+    onSortingChange?: OnChangeFn<SortingState>;
 }) {
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         manualPagination: true,
+        manualSorting: true,
         onPaginationChange: setPagination,
+        onSortingChange,
         rowCount,
         state: {
             pagination,
+            sorting,
         },
     });
 
@@ -64,7 +79,25 @@ export function DataTableServer<TData, TValue>({
                                 {headerGroup.headers.map((header) => {
                                     return (
                                         <TableHead key={header.id}>
-                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                            {header.isPlaceholder ? null : (
+                                                <div
+                                                    className={
+                                                        header.column.getCanSort()
+                                                            ? 'flex cursor-pointer select-none items-center gap-2 hover:text-slate-900 dark:hover:text-slate-200'
+                                                            : ''
+                                                    }
+                                                    onClick={header.column.getToggleSortingHandler()}
+                                                >
+                                                    {flexRender(header.column.columnDef.header, header.getContext())}
+                                                    {{
+                                                        asc: <ArrowUp className="h-4 w-4" />,
+                                                        desc: <ArrowDown className="h-4 w-4" />,
+                                                    }[header.column.getIsSorted() as string] ??
+                                                        (header.column.getCanSort() ? (
+                                                            <ArrowUpDown className="h-4 w-4 opacity-0 group-hover:opacity-100" />
+                                                        ) : null)}
+                                                </div>
+                                            )}
                                             {header.column.getCanResize() && (
                                                 <div
                                                     onMouseDown={header.getResizeHandler()}

@@ -13,6 +13,8 @@ Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['aut
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/laporan-mutasi', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan-mutasi/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
+    Route::get('/laporan-mutasi/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
 });
 
 require __DIR__.'/settings.php';
