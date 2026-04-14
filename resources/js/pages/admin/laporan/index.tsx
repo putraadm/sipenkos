@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface Penghuni {
     nama: string;
+    nik?: string;
     no_wa: string | null;
     file_ktp: string | null;
     file_kk: string | null;
@@ -59,8 +60,9 @@ interface LaporanProps {
     };
     stats: {
         total_penghuni_aktif: number;
-        masuk_bulan_ini: number;
-        keluar_bulan_ini: number;
+        masuk_count: number;
+        keluar_count: number;
+        period_label: string;
         current_month: string;
         current_year: number;
     };
@@ -72,10 +74,6 @@ interface BreadcrumbItem {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
     {
         title: 'Laporan Mutasi',
         href: '/laporan-mutasi',
@@ -112,10 +110,23 @@ export default function LaporanMutasi({ mutasi, filters, stats }: LaporanProps) 
             header: 'Penghuni',
             enableSorting: true,
             cell: ({ row }: { row: Row<MutasiItem> }) => (
-                <div className="flex flex-col">
-                    <span className="text-sm font-bold text-slate-900 dark:text-slate-400">{row.original.penghuni?.nama}</span>
-                    <span className="text-xs text-slate-500">WA: {row.original.penghuni?.no_wa || '-'}</span>
-                </div>
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-400">{row.original.penghuni?.nama}</span>
+            ),
+        },
+        {
+            accessorKey: 'penghuni.nik',
+            header: 'NIK',
+            enableSorting: true,
+            cell: ({ row }: { row: Row<MutasiItem> }) => (
+                <span className="text-sm font-mono text-slate-700 dark:text-slate-400">{row.original.penghuni?.nik || '-'}</span>
+            ),
+        },
+        {
+            accessorKey: 'penghuni.no_wa',
+            header: 'No. WhatsApp',
+            enableSorting: true,
+            cell: ({ row }: { row: Row<MutasiItem> }) => (
+                <span className="text-sm text-slate-700 dark:text-slate-400">{row.original.penghuni?.no_wa || '-'}</span>
             ),
         },
         {
@@ -123,10 +134,15 @@ export default function LaporanMutasi({ mutasi, filters, stats }: LaporanProps) 
             header: 'Nama Kos',
             enableSorting: true,
             cell: ({ row }: { row: Row<MutasiItem> }) => (
-                <div className="flex flex-col">
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-400">{row.original.kos?.nama_kos}</span>
-                    <span className="text-xs text-slate-500">Pemilik: {row.original.kos?.nama_pemilik}</span>
-                </div>
+                <span className="text-sm font-medium text-slate-800 dark:text-slate-400">{row.original.kos?.nama_kos}</span>
+            ),
+        },
+        {
+            accessorKey: 'kos.nama_pemilik',
+            header: 'Pemilik Kos',
+            enableSorting: true,
+            cell: ({ row }: { row: Row<MutasiItem> }) => (
+                <span className="text-sm text-slate-600 dark:text-slate-400">{row.original.kos?.nama_pemilik}</span>
             ),
         },
         {
@@ -325,8 +341,8 @@ export default function LaporanMutasi({ mutasi, filters, stats }: LaporanProps) 
                             <LogIn size={24} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Masuk ({stats.current_month})</span>
-                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.masuk_bulan_ini.toLocaleString('id')}</span>
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Masuk ({stats.period_label})</span>
+                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.masuk_count.toLocaleString('id')}</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 rounded-2xl border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900/50 dark:bg-rose-900/20">
@@ -334,8 +350,8 @@ export default function LaporanMutasi({ mutasi, filters, stats }: LaporanProps) 
                             <LogOut size={24} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Keluar ({stats.current_month})</span>
-                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.keluar_bulan_ini.toLocaleString('id')}</span>
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Keluar ({stats.period_label})</span>
+                            <span className="text-2xl font-bold text-slate-900 dark:text-white">{stats.keluar_count.toLocaleString('id')}</span>
                         </div>
                     </div>
                 </div>

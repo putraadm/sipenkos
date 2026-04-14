@@ -25,8 +25,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface DashboardProps {
     stats: {
-        total_penghuni: number;
-        total_kos: number;
+        total_penghuni_digital: number;
+        total_kos_digital: number;
+        total_penghuni_manual: number;
+        total_kos_manual: number;
         mutasi_bulan_ini: number;
     };
     chartData: {
@@ -39,16 +41,19 @@ interface DashboardProps {
 
 export default function Dashboard({ stats, chartData, recentActivities }: DashboardProps) {
     const statCards = [
-        { label: 'Total Penghuni', value: stats.total_penghuni.toString(), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-        { label: 'Total Kos', value: stats.total_kos.toString(), icon: Home, color: 'text-indigo-600', bg: 'bg-indigo-100 dark:bg-indigo-900/30' },
-        { label: 'Mutasi Bulan Ini', value: stats.mutasi_bulan_ini.toString(), icon: ArrowLeftRight, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+        { label: 'Penghuni (Digital)', value: stats.total_penghuni_digital.toString(), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
+        { label: 'Total Kos (Digital)', value: stats.total_kos_digital.toString(), icon: Home, color: 'text-indigo-600', bg: 'bg-indigo-100 dark:bg-indigo-900/30' },
+        { label: 'Penghuni (Manual)', value: stats.total_penghuni_manual.toString(), icon: Users, color: 'text-amber-600', bg: 'bg-amber-100 dark:bg-amber-900/30' },
+        { label: 'Total Kos (Manual)', value: stats.total_kos_manual.toString(), icon: Home, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
+        { label: 'Mutasi (Live)', value: stats.mutasi_bulan_ini.toString(), icon: ArrowLeftRight, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
     ];
+
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 p-6">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                     {statCards.map((stat, i) => (
                         <div key={i} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
                             <div className="flex items-center gap-4">

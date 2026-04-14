@@ -60,12 +60,26 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
+                                <Label htmlFor="no_wa" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nomor WhatsApp</Label>
+                                <Input
+                                    id="no_wa"
+                                    type="text"
+                                    required
+                                    tabIndex={3}
+                                    name="no_wa"
+                                    placeholder="081234567890"
+                                    className="h-11 rounded-xl border-slate-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900/50"
+                                />
+                                <InputError message={errors.no_wa as string} />
+                            </div>
+
+                            <div className="grid gap-2">
                                 <Label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</Label>
                                 <Input
                                     id="password"
                                     type="password"
                                     required
-                                    tabIndex={3}
+                                    tabIndex={4}
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="••••••••"

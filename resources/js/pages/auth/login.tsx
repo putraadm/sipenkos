@@ -23,17 +23,10 @@ export default function Login({
     canRegister,
 }: Props) {
     return (
-        <AuthLayout
-            title="Log in to your account"
-            description="Enter your email or username and password below to log in"
-        >
+        <AuthLayout title="Log in to your account" description="Enter your email or username and password below to log in">
             <Head title="Log in" />
 
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
+            <Form {...store.form()} resetOnSuccess={['password']} className="flex flex-col gap-6">
                 {({ processing, errors }) => (
                     <>
                         <div className="grid gap-5">
@@ -101,14 +94,14 @@ export default function Login({
                             </Button>
                         </div>
 
-                        {canRegister && (
+                        {/* {canRegister && (
                             <div className="text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                                 Don't have an account?{' '}
                                 <TextLink href={register()} tabIndex={5} className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
                                     Create one for free
                                 </TextLink>
                             </div>
-                        )}
+                        )} */}
                     </>
                 )}
             </Form>

@@ -122,12 +122,12 @@
             <span class="value">{{ $stats['total_penghuni_aktif'] }}</span>
         </div>
         <div class="stats-item">
-            <span class="label">Masuk ({{ $stats['current_month'] }})</span>
-            <span class="value">{{ $stats['masuk_bulan_ini'] }}</span>
+            <span class="label">Masuk ({{ $stats['period_label'] }})</span>
+            <span class="value">{{ $stats['masuk_count'] }}</span>
         </div>
         <div class="stats-item">
-            <span class="label">Keluar ({{ $stats['current_month'] }})</span>
-            <span class="value">{{ $stats['keluar_bulan_ini'] }}</span>
+            <span class="label">Keluar ({{ $stats['period_label'] }})</span>
+            <span class="value">{{ $stats['keluar_count'] }}</span>
         </div>
     </div>
 
@@ -137,7 +137,10 @@
                 <th style="width: 30px">No</th>
                 <th>Tanggal</th>
                 <th>Penghuni</th>
+                <th>NIK</th>
+                <th>No. WA</th>
                 <th>Kos</th>
+                <th>Pemilik</th>
                 <th>Jenis</th>
             </tr>
         </thead>
@@ -146,14 +149,11 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $item->tanggal_mutasi }}</td>
-                <td>
-                    <strong>{{ $item->penghuni?->nama ?? '-' }}</strong><br>
-                    <span style="font-size: 10px; color: #666">WA: {{ $item->penghuni?->no_wa ?? '-' }}</span>
-                </td>
-                <td>
-                    <strong>{{ $item->kos?->nama_kos ?? '-' }}</strong><br>
-                    <span style="font-size: 10px; color: #666">Pemilik: {{ $item->kos?->nama_pemilik ?? '-' }}</span>
-                </td>
+                <td><strong>{{ $item->penghuni?->nama ?? '-' }}</strong></td>
+                <td><span style="font-family: monospace">{{ $item->penghuni?->nik ?? '-' }}</span></td>
+                <td>{{ $item->penghuni?->no_wa ?? '-' }}</td>
+                <td><strong>{{ $item->kos?->nama_kos ?? '-' }}</strong></td>
+                <td>{{ $item->kos?->nama_pemilik ?? '-' }}</td>
                 <td style="text-align: center">
                     <span class="badge badge-{{ $item->jenis_mutasi }}">
                         {{ $item->jenis_mutasi }}

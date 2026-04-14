@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('data_penghuni', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('penghuni_id')->unique();
+            $table->char('nik', 16)->unique();
             $table->string('nama');
             $table->string('no_wa')->nullable();
             $table->string('agama')->nullable();

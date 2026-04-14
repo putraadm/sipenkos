@@ -14,6 +14,7 @@ class DataPenghuni extends Model
 
     protected $fillable = [
         'penghuni_id',
+        'nik',
         'nama',
         'no_wa',
         'agama',

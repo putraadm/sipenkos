@@ -10,8 +10,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
-    Route::post('/sync-kos', [SyncController::class, 'syncKos']);
-    Route::post('/sync-mutasi', [SyncController::class, 'syncMutasi']);
-    Route::post('/sync-pendapatan', [SyncController::class, 'syncPendapatan']);
-    Route::get('/laporan-pendapatan', [ReportPendapatanController::class, 'getLaporan']);
+    Route::post('/sync/kos', [SyncController::class, 'syncKos']);
+    Route::post('/sync/mutasi', [SyncController::class, 'syncMutasi']);
+    Route::post('/sync/penghuni', [SyncController::class, 'syncPenghuni']);
+    Route::post('/sync/pendapatan', [SyncController::class, 'syncPendapatan']);
+    Route::get('/laporan/pendapatan', [ReportPendapatanController::class, 'getLaporan']);
 });
